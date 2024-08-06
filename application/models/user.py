@@ -2,7 +2,7 @@
 from sqlalchemy import Column, Integer, String, Enum, Boolean, CheckConstraint
 from sqlalchemy.orm import relationship
 
-from db.database import Base
+from database.database import Base
 
 
 class User(Base):
@@ -12,6 +12,11 @@ class User(Base):
     id = Column(
         Integer,
         primary_key=True,
+        index=True,
+    )
+    username = Column(
+        String,
+        unique=True,
         index=True,
     )
     email = Column(

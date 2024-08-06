@@ -6,6 +6,7 @@ from typing import Optional
 
 class UserBase(BaseModel):
     email: EmailStr
+    username: str
     role: str = Field(
         description="User role: customer, delivery_partner, or admin"
     )
@@ -24,5 +25,5 @@ class UserResponse(UserBase):
 
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    username: str
     password: str

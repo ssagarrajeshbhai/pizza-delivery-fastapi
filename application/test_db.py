@@ -1,4 +1,4 @@
-from db.database import engine, Base
+from database.database import engine, Base
 
 Base.metadata.create_all(engine)
 
