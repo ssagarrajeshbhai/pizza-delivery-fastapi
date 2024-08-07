@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from api.auth import router as user_router
 from api.admin import router as admin_router
 from api.customer import router as customer_router
+from api.delivery import router as delivery_router
 from database.database import engine, Base
 
 # create the database tables
@@ -26,4 +27,10 @@ app.include_router(
     customer_router,
     prefix="/customer",
     tags=["customer"]
+)
+
+app.include_router(
+    delivery_router,
+    prefix="/delivery",
+    tags=["delivery"]
 )
