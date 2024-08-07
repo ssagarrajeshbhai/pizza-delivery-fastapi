@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from database.database import get_db
 from models.user import User
-from schema.schema_user import UserCreate, UserResponse, UserLogin
+from schema.auth import UserCreate, UserResponse, UserLogin
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from utils.util_functions import create_access_token, get_current_user
 
@@ -48,7 +48,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
 # User Login
 @router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
+def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user.username).first()
     if not db_user or not pwd_context.verify(user.password, db_user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Credentials")

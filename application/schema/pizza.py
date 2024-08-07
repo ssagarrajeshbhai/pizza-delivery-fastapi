@@ -2,11 +2,15 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-
-class PizzaCreate(BaseModel):
+class PizzaBase(BaseModel):
     name: str
     description: str
     price: float
+    is_available: bool = True
+
+
+class PizzaCreate(PizzaBase):
+    pass
 
 
 class PizzaUpdate(BaseModel):
@@ -21,3 +25,6 @@ class PizzaResponse(PizzaCreate):
 
     class config:
         orm_mode = True
+
+class MessageResponse(BaseModel):
+    message: str
