@@ -1,4 +1,4 @@
-# database.py
+# application/database/database.py
 
 import os
 from sqlalchemy import create_engine

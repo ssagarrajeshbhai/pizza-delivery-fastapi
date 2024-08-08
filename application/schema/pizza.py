@@ -1,6 +1,8 @@
-from typing import Optional
+# application/schema/pizza.py
 
+from typing import Optional
 from pydantic import BaseModel
+
 
 class PizzaBase(BaseModel):
     name: str
@@ -25,6 +27,7 @@ class PizzaResponse(PizzaCreate):
 
     class config:
         orm_mode = True
+
 
 class MessageResponse(BaseModel):
     message: str

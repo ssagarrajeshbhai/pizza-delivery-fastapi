@@ -1,4 +1,5 @@
-# app/models/cart.py
+# application/models/cart.py
+
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from database.database import Base

@@ -1,4 +1,5 @@
-# app/routers/customer.py
+# application/api/customer.py
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from schema.cart import CartItem, CartItemCreate, CartItemUpdate, Cart
@@ -14,21 +15,22 @@ from typing import List
 
 router = APIRouter()
 
+
 @router.get("/pizzas", response_model=list[PizzaResponse])
 def get_pizzas(
-    db: Session = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user),
+        db: Session = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user),
 ):
     pizzas = db.query(Pizza).filter(Pizza.is_available == True).all()
     return pizzas
 
+
 @router.post("/cart", response_model=CartItem)
 def add_to_cart(
-    cart_item: CartItemCreate,
-    db: Session = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+        cart_item: CartItemCreate,
+        db: Session = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
 ):
-    
     # Check if pizza exist
     db_pizza = db.query(Pizza).filter(Pizza.id == cart_item.pizza_id).first()
     if not db_pizza:
@@ -36,12 +38,12 @@ def add_to_cart(
             status_code=404,
             detail="Pizza not found"
         )
-    
+
     # Check if the cart already exist for the user
     user_cart = db.query(ModelCartItem).filter(
         ModelCartItem.user_id == current_user.id,
         ModelCartItem.pizza_id == cart_item.pizza_id
-        ).first()
+    ).first()
 
     if user_cart:
         # update the quantity
@@ -49,7 +51,7 @@ def add_to_cart(
         db.commit()
         db.refresh(user_cart)
         return user_cart
-    
+
     else:
         # create a new cart
         new_item = ModelCartItem(
@@ -63,22 +65,22 @@ def add_to_cart(
 
         return new_item
 
+
 @router.put("/cart/{item_id}", response_model=CartItem)
 def update_cart(
-    item_id: int, 
-    cart_item_update: CartItemUpdate, 
-    db: Session = Depends(get_db), 
-    current_user: UserResponse = Depends(get_current_user)
-    ):
-
+        item_id: int,
+        cart_item_update: CartItemUpdate,
+        db: Session = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
+):
     # Find the cart item to update
     item_to_update = db.query(ModelCartItem).filter(
         ModelCartItem.id == item_id, ModelCartItem.user_id == current_user.id
-        ).first()
-    
+    ).first()
+
     if not item_to_update:
         raise HTTPException(
-            status_code=404, 
+            status_code=404,
             detail="Item not found in cart"
         )
 
@@ -89,12 +91,12 @@ def update_cart(
 
     return item_to_update
 
+
 @router.get("/cart", response_model=Cart)
 def view_cart(
-    db: Session = Depends(get_db), 
-    current_user: UserResponse = Depends(get_current_user)
-    ):
-
+        db: Session = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
+):
     # Retrieve the user's cart items
     cart_items = list(db.query(ModelCartItem).filter(ModelCartItem.user_id == current_user.id).all())
     if not cart_items:
@@ -107,13 +109,13 @@ def view_cart(
         "total": total
     }
 
+
 @router.delete("/cart/{item_id}")
 def delete_cart_item(
-    item_id: int,
-    db: Session = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+        item_id: int,
+        db: Session = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
 ):
-    
     # Find the cart item to delete
     item_to_delete = db.query(ModelCartItem).filter(
         ModelCartItem.id == item_id,
@@ -125,18 +127,18 @@ def delete_cart_item(
             status_code=404,
             detail="Item not found"
         )
-    
+
     db.delete(item_to_delete)
     db.commit()
     return {"Item got deleted"}
 
+
 @router.post("/orders")
 def create_order(
-    order_create: OrderCreate, 
-    db: Session = Depends(get_db), 
-    current_user: UserResponse = Depends(get_current_user)
-    ):
-
+        order_create: OrderCreate,
+        db: Session = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
+):
     # Calculate total amount and validate pizzas
     total_amount = 0
     order_items = []
@@ -146,7 +148,7 @@ def create_order(
         db_pizza = db.query(Pizza).filter(Pizza.id == item.pizza_id).first()
         if not db_pizza:
             raise HTTPException(
-                status_code=404, 
+                status_code=404,
                 detail=f"Pizza with id {item.pizza_id} not found"
             )
 
@@ -185,13 +187,13 @@ def create_order(
         "items": new_order.order_items
     }
 
+
 # @router.get("/orders", response_model=list[Order])
 @router.get("/orders")
 def get_orders(
-    db: Session = Depends(get_db), 
-    current_user: UserResponse = Depends(get_current_user)
-    ):
-
+        db: Session = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
+):
     # Retrieve all orders for the current user
     orders = db.query(ModelOrder).filter(ModelOrder.user_id == current_user.id).all()
     if not orders:

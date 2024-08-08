@@ -1,3 +1,5 @@
+# application/schema/cart.py
+
 from pydantic import BaseModel
 
 class CartItemBase(BaseModel):
