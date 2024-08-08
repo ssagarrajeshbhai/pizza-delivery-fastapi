@@ -10,5 +10,5 @@ class DeliveryComment(Base):
     current_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Assuming you have a delivery_persons table
     comment = Column(String, nullable=False)
 
-    order = relationship("Order", back_populates="delivery_comments")  # Relationship to the Order model
+    orders = relationship("Order", back_populates="delivery_comments")  # Relationship to the Order model
     current_user = relationship("User")  # Assuming you have a DeliveryPerson model

@@ -36,5 +36,5 @@ class User(Base):
         Boolean,
         default=True,
     )
-
-    cart = relationship("Cart", back_populates="user")
+    orders = relationship("Order", back_populates="users")
+    cart_items = relationship("CartItem", back_populates="users")

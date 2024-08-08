@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, Enum, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from models.delivery import DeliveryComment
 from database.database import Base
 import enum
 from datetime import datetime
@@ -21,8 +22,9 @@ class Order(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user = relationship("User", back_populates="orders")
+    users = relationship("User", back_populates="orders")
     order_items = relationship("OrderItem", back_populates="order")
+    delivery_comments = relationship(DeliveryComment, back_populates="orders")
 
 class OrderItem(Base):
     __tablename__ = "order_items"

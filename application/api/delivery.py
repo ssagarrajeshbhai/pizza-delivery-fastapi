@@ -13,7 +13,7 @@ from database.database import get_db
 
 router = APIRouter()
 
-@router.put("/deliveries/{order_id}/status", response_model=Order)
+@router.put("/deliveries/{order_id}/status")
 def update_delivery_status(
     order_id: int, 
     status_update: DeliveryStatusUpdate, 
@@ -23,18 +23,24 @@ def update_delivery_status(
 
     # Find the order to update
     order = db.query(ModelOrder).filter(ModelOrder.id == order_id).first()
+    prev_status = order.status
 
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    
+    # return if the current and status to update is same
+    if prev_status == status_update.status:
+        return {f"The current status is {prev_status}"}
 
     # Update the delivery status
     order.status = status_update.status
     db.commit()
     db.refresh(order)
 
-    return order
+    return { f"Order status updated from {prev_status} to {status_update.status}"}
 
-@router.post("/deliveries/{order_id}/comments", response_model=DeliveryComment)
+# @router.post("/deliveries/{order_id}/comments", response_model=ModelDeliveryComment)
+@router.post("/deliveries/{order_id}/comments")
 def add_delivery_comment(
     order_id: int, 
     comment_create: DeliveryCommentCreate, 

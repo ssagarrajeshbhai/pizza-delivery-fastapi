@@ -101,7 +101,7 @@ def delete_pizza(
 
     return MessageResponse(message= "Pizza deleted successfully.")
 
-@router.put("/orders/{order_id}/status", response_model=Order)
+@router.put("/orders/{order_id}/status")
 def update_order_status(
     order_id: int, 
     order_update: OrderUpdate, 

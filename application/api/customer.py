@@ -3,13 +3,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from schema.cart import CartItem, CartItemCreate, CartItemUpdate, Cart
 from schema.pizza import PizzaResponse
-from schema.order import OrderCreate, Order
+from schema.order import OrderCreate, Order, OrderItem
 from utils.util_functions import get_current_user
 from schema.auth import UserResponse
 from database.database import get_db
 from models.pizza import Pizza
 from models.cart import CartItem as ModelCartItem
 from models.order import OrderItem as ModelOrderItem, Order as ModelOrder
+from typing import List
 
 router = APIRouter()
 
@@ -42,7 +43,7 @@ def add_to_cart(
         ModelCartItem.pizza_id == cart_item.pizza_id
         ).first()
 
-    if not user_cart:
+    if user_cart:
         # update the quantity
         user_cart.quantity += cart_item.quantity
         db.commit()
@@ -63,7 +64,7 @@ def add_to_cart(
         return new_item
 
 @router.put("/cart/{item_id}", response_model=CartItem)
-async def update_cart(
+def update_cart(
     item_id: int, 
     cart_item_update: CartItemUpdate, 
     db: Session = Depends(get_db), 
@@ -89,21 +90,24 @@ async def update_cart(
     return item_to_update
 
 @router.get("/cart", response_model=Cart)
-async def view_cart(
+def view_cart(
     db: Session = Depends(get_db), 
     current_user: UserResponse = Depends(get_current_user)
     ):
 
     # Retrieve the user's cart items
-    cart_items = db.query(ModelCartItem).filter(ModelCartItem.user_id == current_user.id).all()
+    cart_items = list(db.query(ModelCartItem).filter(ModelCartItem.user_id == current_user.id).all())
     if not cart_items:
         raise HTTPException(status_code=404, detail="Cart not found")
 
     # Calculate the total price
     total = sum(item.quantity * item.pizza.price for item in cart_items)
-    return Cart(items=cart_items, total=total)
+    return {
+        "items": cart_items,
+        "total": total
+    }
 
-@router.delete("/cart/{item_id}", response_model=CartItem)
+@router.delete("/cart/{item_id}")
 def delete_cart_item(
     item_id: int,
     db: Session = Depends(get_db),
@@ -126,7 +130,7 @@ def delete_cart_item(
     db.commit()
     return {"Item got deleted"}
 
-@router.post("/orders", response_model=Order)
+@router.post("/orders")
 def create_order(
     order_create: OrderCreate, 
     db: Session = Depends(get_db), 
@@ -164,12 +168,18 @@ def create_order(
         order_items=order_items  # This will create the relationship
     )
 
+    # Query the items in the order
+    # items_in_order = db.query(ModelOrderItem).filter(
+    #     ModelOrderItem.order_id == new_order.id
+    # ).all()
+
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
     return new_order
 
-@router.get("/orders", response_model=list[Order])
+# @router.get("/orders", response_model=list[Order])
+@router.get("/orders")
 def get_orders(
     db: Session = Depends(get_db), 
     current_user: UserResponse = Depends(get_current_user)

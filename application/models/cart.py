@@ -11,5 +11,5 @@ class CartItem(Base):
     pizza_id = Column(Integer, ForeignKey("pizzas.id"))
     quantity = Column(Integer, default=1)
 
-    user = relationship("User", back_populates="cart_items")
+    users = relationship("User", back_populates="cart_items")
     pizza = relationship("Pizza")
