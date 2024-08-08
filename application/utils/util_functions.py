@@ -1,7 +1,7 @@
 # application/utils/util_functions.py
 
 import os
-from typing import Optional
+from typing import List, Optional
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
@@ -92,3 +92,13 @@ def role_required(required_role: str, current_user: UserResponse):
             return await func(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def role_validator(allowed_roles: List, current_user):
+    if current_user.role not in allowed_roles:
+        raise HTTPException(
+            status_code=401,
+            detail="Operation not permitted"
+        )
+    
+    return True

@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from utils.util_functions import get_current_user, role_required
+from utils.util_functions import get_current_user, role_required, role_validator
 from schema.auth import TokenData, UserResponse
 from schema.pizza import MessageResponse, PizzaCreate, PizzaResponse, PizzaUpdate
 from schema.order import Order, OrderUpdate
@@ -26,30 +26,26 @@ def create_pizza(
         db: Session = Depends(get_db),
         current_user: UserResponse = Depends(get_current_user)
 ):
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=401,
-            detail="Operation not permitted"
+    if role_validator(allowed_roles=['customer'], current_user=current_user):
+
+        current_pizza = Pizza(
+            name=pizza.name,
+            description=pizza.description,
+            price=pizza.price,
         )
 
-    current_pizza = Pizza(
-        name=pizza.name,
-        description=pizza.description,
-        price=pizza.price,
-    )
+        try:
+            db.add(current_pizza)
+            db.commit()
+            db.refresh(current_pizza)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail="Internal server Error:" + str(e)
+            )
 
-    try:
-        db.add(current_pizza)
-        db.commit()
-        db.refresh(current_pizza)
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail="Internal server Error:" + str(e)
-        )
-
-    return current_pizza
+        return current_pizza
 
 
 """
@@ -67,24 +63,25 @@ def update_pizza(
         db: Session = Depends(get_db),
         current_user: UserResponse = Depends(get_current_user)
 ):
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=401,
-            detail="Operation not permitted"
-        )
+    if role_validator(allowed_roles=['admin'], current_user=current_user):
+        if current_user.role != "admin":
+            raise HTTPException(
+                status_code=401,
+                detail="Operation not permitted"
+            )
 
-    pizza_to_update = db.query(Pizza).filter(Pizza.id == pizza_id).first()
+        pizza_to_update = db.query(Pizza).filter(Pizza.id == pizza_id).first()
 
-    if not pizza_to_update:
-        raise HTTPException(status_code=404, detail="Pizza not found")
+        if not pizza_to_update:
+            raise HTTPException(status_code=404, detail="Pizza not found")
 
-    for key, value in pizza.dict(exclude_unset=True).items():
-        setattr(pizza_to_update, key, value)
+        for key, value in pizza.dict(exclude_unset=True).items():
+            setattr(pizza_to_update, key, value)
 
-    db.commit()
-    db.refresh(pizza_to_update)
+        db.commit()
+        db.refresh(pizza_to_update)
 
-    return pizza_to_update
+        return pizza_to_update
 
 
 """
@@ -101,27 +98,24 @@ def delete_pizza(
         db: Session = Depends(get_db),
         current_user: UserResponse = Depends(get_current_user)
 ):
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=401,
-            detail="Operation not permitted"
-        )
-    pizza_to_delete = db.query(Pizza).filter(Pizza.id == pizza_id).first()
-    if not pizza_to_delete:
-        raise HTTPException(status_code=404, detail="Pizza not found")
+    if role_validator(allowed_roles=['customer'], current_user=current_user):
 
-    db.delete(pizza_to_delete)
-    try:
-        db.commit()
+        pizza_to_delete = db.query(Pizza).filter(Pizza.id == pizza_id).first()
+        if not pizza_to_delete:
+            raise HTTPException(status_code=404, detail="Pizza not found")
 
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail="Internal Server Error: " + str(e)
-        )
+        db.delete(pizza_to_delete)
+        try:
+            db.commit()
 
-    return MessageResponse(message="Pizza deleted successfully.")
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail="Internal Server Error: " + str(e)
+            )
+
+        return MessageResponse(message="Pizza deleted successfully.")
 
 
 """
@@ -138,13 +132,14 @@ def update_order_status(
         order_update: OrderUpdate,
         db: Session = Depends(get_db)
 ):
-    # Find the order to update
-    order = db.query(ModelOrder).filter(ModelOrder.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+    if role_validator(allowed_roles=['customer'], current_user=current_user):
+        # Find the order to update
+        order = db.query(ModelOrder).filter(ModelOrder.id == order_id).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
 
-    # Update the order status
-    order.status = order_update.status
-    db.commit()
-    db.refresh(order)
-    return order
+        # Update the order status
+        order.status = order_update.status
+        db.commit()
+        db.refresh(order)
+        return order
