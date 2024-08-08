@@ -12,6 +12,14 @@ from database.database import get_db
 
 router = APIRouter()
 
+"""
+Endpoint:       PUT /delivery/deliveries/{order_id}/status
+Function:       update_delivery_status
+Description:    Validate the order form request json, 
+                if present, it updates the status from old status to status given by delivery_person.
+                Also if the current_status is same as new_status, it shows current_status.              
+"""
+
 
 @router.put("/deliveries/{order_id}/status")
 def update_delivery_status(
@@ -37,6 +45,13 @@ def update_delivery_status(
     db.refresh(order)
 
     return {f"Order status for order {order_id} updated from {prev_status} to {status_update.status}"}
+
+
+"""
+Endpoint:       POST /delivery/deliveries/{order_id}/comments
+Function:       add_delivery_comment
+Description:    The delivery person can add the comment to the order using this function.               
+"""
 
 
 # @router.post("/deliveries/{order_id}/comments", response_model=ModelDeliveryComment)

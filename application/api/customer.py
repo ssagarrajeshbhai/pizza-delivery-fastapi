@@ -11,9 +11,15 @@ from database.database import get_db
 from models.pizza import Pizza
 from models.cart import CartItem as ModelCartItem
 from models.order import OrderItem as ModelOrderItem, Order as ModelOrder
-from typing import List
+
 
 router = APIRouter()
+
+"""
+Endpoint:       GET /customer/pizzas
+Function:       get_pizzas
+Description:    List all the pizzas created and updated by Admin user              
+"""
 
 
 @router.get("/pizzas", response_model=list[PizzaResponse])
@@ -23,6 +29,15 @@ def get_pizzas(
 ):
     pizzas = db.query(Pizza).filter(Pizza.is_available == True).all()
     return pizzas
+
+
+"""
+Endpoint:       POST /customer/cart
+Function:       add_to_cart
+Description:    It adds the pizza into the cart,           
+                If that pizza is already there, it updates the quantity,
+                If cart does not exist, it creates new one.
+"""
 
 
 @router.post("/cart", response_model=CartItem)
@@ -66,6 +81,14 @@ def add_to_cart(
         return new_item
 
 
+"""
+Endpoint:       PUT /customer/cart/{item_id}
+Function:       update_cart
+Description:    It finds the item to update in cart, 
+                if exist, it update the quantity of that item in cart      
+"""
+
+
 @router.put("/cart/{item_id}", response_model=CartItem)
 def update_cart(
         item_id: int,
@@ -92,6 +115,13 @@ def update_cart(
     return item_to_update
 
 
+"""
+Endpoint:       GET /customer/cart
+Function:       view_cart
+Description:    It displays the cart for the current logged in user, if exist.           
+"""
+
+
 @router.get("/cart", response_model=Cart)
 def view_cart(
         db: Session = Depends(get_db),
@@ -108,6 +138,14 @@ def view_cart(
         "items": cart_items,
         "total": total
     }
+
+
+"""
+Endpoint:       DELETE /customer/cart/{item_id}
+Function:       delete_cart_item
+Description:    It finds the cart item from given id,
+                if item present in logged in user's cart, it removes it.          
+"""
 
 
 @router.delete("/cart/{item_id}")
@@ -131,6 +169,15 @@ def delete_cart_item(
     db.delete(item_to_delete)
     db.commit()
     return {"Item got deleted"}
+
+
+"""
+Endpoint:       POST /customer/orders
+Function:       create_order
+Description:    It gets all the item from order_create request json,
+                validate all items(pizzas) are available or exist,
+                then calculate the total price of all the pizzas in order.          
+"""
 
 
 @router.post("/orders")
@@ -188,7 +235,13 @@ def create_order(
     }
 
 
-# @router.get("/orders", response_model=list[Order])
+"""
+Endpoint:       GET /customer/orders
+Function:       get_orders
+Description:    It displays all the orders current_logged_in_user made.         
+"""
+
+
 @router.get("/orders")
 def get_orders(
         db: Session = Depends(get_db),
