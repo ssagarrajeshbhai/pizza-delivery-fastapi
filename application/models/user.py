@@ -1,4 +1,5 @@
-# models/user.py
+# application/models/user.py
+
 from sqlalchemy import Column, Integer, String, Enum, Boolean, CheckConstraint
 from sqlalchemy.orm import relationship
 

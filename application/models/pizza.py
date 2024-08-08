@@ -1,3 +1,5 @@
+# application/models/pizza.py
+
 from sqlalchemy import Column, Integer, String, Float, Boolean
 from database.database import Base
 

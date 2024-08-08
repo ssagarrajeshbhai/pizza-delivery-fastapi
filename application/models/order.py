@@ -1,3 +1,5 @@
+# application/models/order.py
+
 from sqlalchemy import Column, Integer, String, Float, Enum, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from models.delivery import DeliveryComment
@@ -5,12 +7,14 @@ from database.database import Base
 import enum
 from datetime import datetime
 
+
 class OrderStatus(str, enum.Enum):
     PLACED = "placed"
     PREPARING = "preparing"
     OUT_FOR_DELIVERY = "out_for_delivery"
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
+
 
 class Order(Base):
     __tablename__ = "orders"
@@ -25,6 +29,7 @@ class Order(Base):
     users = relationship("User", back_populates="orders")
     order_items = relationship("OrderItem", back_populates="order")
     delivery_comments = relationship(DeliveryComment, back_populates="orders")
+
 
 class OrderItem(Base):
     __tablename__ = "order_items"

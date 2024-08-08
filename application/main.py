@@ -1,3 +1,5 @@
+# application/main.py
+
 from fastapi import FastAPI
 from api.auth import router as user_router
 from api.admin import router as admin_router

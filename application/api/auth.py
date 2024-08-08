@@ -1,3 +1,5 @@
+# application/api/auth.py
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -15,11 +17,15 @@ pwd_context = CryptContext(
     deprecated="auto",
 )
 
+"""
+Endpoint:       POST /users/signup
+Function:       create_user
+Description:    Creates the user with user credentials like username, email, password etc.                
+"""
 
-# User registration
+
 @router.post("/signup", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-
     # check if user already exist
     existing_user = db.query(User).filter(User.username == user.username).first()
 
@@ -46,7 +52,13 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
-# User Login
+"""
+Endpoint:       POST /users/login
+Function:       login
+Description:    Creates the user login form using OAuth2 authentication and generate token for authorization.                
+"""
+
+
 @router.post("/login")
 def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user.username).first()
@@ -57,7 +69,6 @@ def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
         data={"sub": db_user.username}
     )
     return {"access_token": access_token, "token_type": "bearer"}
-
 
 # Get current User
 # @router.get("/me", response_model=UserResponse)

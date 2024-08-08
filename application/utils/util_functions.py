@@ -1,3 +1,5 @@
+# application/utils/util_functions.py
+
 import os
 from typing import Optional
 from sqlalchemy.orm import Session
@@ -9,9 +11,15 @@ from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
 from schema.auth import TokenData, UserResponse
 
+# variable, being used in creation of JWT tokens
 SECRET_KEY = "6df6e58ffaf7b238d6d54684a14f12c7480015d4d8467dcd784c2b7f143924b0"
 ALGORITHM = "HS256"
 EXPIRE_TIME = 1
+
+"""
+Function:       create_access_token
+Description:    create access token based on the user credentials (if correct).
+"""
 
 
 def create_access_token(data: dict):
@@ -27,6 +35,13 @@ def create_access_token(data: dict):
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="."
 )
+
+
+"""
+Function:       get_current_user
+Description:    It gets the current logged in user from the token, 
+                mainly used for role based access of API endpoints.
+"""
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -57,6 +72,13 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
 
     return user
+
+
+"""
+Function:       role_required (Decorator)
+Description:    This decorator is being used with the endpoint to check 
+                if the current user accessing the endpoint is authorized to use it or not.
+"""
 
 
 def role_required(required_role: str, current_user: UserResponse):
