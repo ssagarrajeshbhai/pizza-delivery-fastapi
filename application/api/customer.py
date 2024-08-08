@@ -176,7 +176,14 @@ def create_order(
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
-    return new_order
+    return {
+        "user_id": current_user.id,
+        "total_amount": total_amount,
+        "created_at": new_order.created_at,
+        "updated_at": new_order.updated_at,
+        "status": new_order.status,
+        "items": new_order.order_items
+    }
 
 # @router.get("/orders", response_model=list[Order])
 @router.get("/orders")

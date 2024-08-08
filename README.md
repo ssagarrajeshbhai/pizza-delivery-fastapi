@@ -33,14 +33,15 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Request Body**:
   ```json
   {
-      "items": [
+      "user_id": 1,
+      "items":[
           {
-              "pizza_id": 1,
-              "quantity": 2
-          },
-          {
-              "pizza_id": 3,
+              "pizza_id": 2,
               "quantity": 1
+          },
+                  {
+              "pizza_id": 6,
+              "quantity": 3
           }
       ]
   }
@@ -48,22 +49,25 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Response**:
   ```json
   {
-      "id": 1,
       "user_id": 1,
-      "total_amount": 25.97,
+      "total_amount": 200.0,
+      "created_at": "2024-08-08T05:57:55.256905",
+      "updated_at": "2024-08-08T05:57:55.256905",
       "status": "placed",
-      "created_at": "2024-08-08T12:34:56.789Z",
-      "updated_at": "2024-08-08T12:34:56.789Z",
       "items": [
           {
-              "pizza_id": 1,
-              "quantity": 2,
-              "unit_price": 10.99
+              "order_id": 13,
+              "pizza_id": 2,
+              "unit_price": 50.0,
+              "id": 22,
+              "quantity": 1
           },
           {
-              "pizza_id": 3,
-              "quantity": 1,
-              "unit_price": 9.99
+              "order_id": 13,
+              "pizza_id": 6,
+              "unit_price": 50.0,
+              "id": 23,
+              "quantity": 3
           }
       ]
   }
@@ -74,22 +78,30 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Response**:
   ```json
   [
-      {
-          "id": 1,
-          "user_id": 1,
-          "total_amount": 25.97,
-          "status": "placed",
-          "created_at": "2024-08-08T12:34:56.789Z",
-          "updated_at": "2024-08-08T12:34:56.789Z"
-      },
-      {
-          "id": 2,
-          "user_id": 1,
-          "total_amount": 15.99,
-          "status": "delivered",
-          "created_at": "2024-08-07T10:20:30.456Z",
-          "updated_at": "2024-08-07T10:20:30.456Z"
-      }
+    {
+        "id": 11,
+        "total_amount": 50.0,
+        "created_at": "2024-08-08T05:55:28.760200",
+        "user_id": 1,
+        "status": "placed",
+        "updated_at": "2024-08-08T05:55:28.760200"
+    },
+    {
+        "id": 12,
+        "total_amount": 200.0,
+        "created_at": "2024-08-08T05:57:30.785897",
+        "user_id": 1,
+        "status": "placed",
+        "updated_at": "2024-08-08T05:57:30.785897"
+    },
+    {
+        "id": 13,
+        "total_amount": 200.0,
+        "created_at": "2024-08-08T05:57:55.256905",
+        "user_id": 1,
+        "status": "placed",
+        "updated_at": "2024-08-08T05:57:55.256905"
+    }
   ]
   ```
 
@@ -105,10 +117,10 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Response**:
   ```json
   {
-      "id": 1,
-      "user_id": 1,
       "pizza_id": 1,
-      "quantity": 2
+      "quantity": 2,
+      "id": 1,
+      "user_id": 1
   }
   ```
 
@@ -117,16 +129,16 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Request Body**:
   ```json
   {
-      "quantity": 3
+      "quantity": 10
   }
   ```
 - **Response**:
   ```json
   {
-      "id": 1,
-      "user_id": 1,
       "pizza_id": 1,
-      "quantity": 3
+      "quantity": 10,
+      "id": 1,
+      "user_id": 1
   }
   ```
 
@@ -137,19 +149,13 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
   {
       "items": [
           {
-              "id": 1,
-              "user_id": 1,
               "pizza_id": 1,
-              "quantity": 2
-          },
-          {
-              "id": 2,
-              "user_id": 1,
-              "pizza_id": 3,
-              "quantity": 1
+              "quantity": 10,
+              "id": 1,
+              "user_id": 1
           }
       ],
-      "total": 25.97
+      "total": 500.0
   }
   ```
 
@@ -160,19 +166,21 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Request Body**:
   ```json
   {
-      "status": "out_for_delivery"
+      "status": "preparing"
   }
   ```
 - **Response**:
   ```json
-  {
-      "id": 1,
-      "user_id": 1,
-      "total_amount": 25.97,
-      "status": "out_for_delivery",
-      "created_at": "2024-08-08T12:34:56.789Z",
-      "updated_at": "2024-08-08T12:34:56.789Z"
-  }
+  [
+      "Order status for order 7 updated from preparing to out_for_delivery"
+  ]
+  ```
+  
+  If api call made with the same status again, then it will show the current status
+  ```json
+  [
+    "The current status is out_for_delivery"
+  ]
   ```
 
 ### Add Delivery Comment
@@ -180,17 +188,18 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Request Body**:
   ```json
   {
-      "comment": "Arrived at the location"
+      "order_id": 1,
+      "delivery_person_id": 1,
+      "comment": "waiting at your doorstep"
   }
   ```
 - **Response**:
   ```json
   {
-      "id": 1,
-      "order_id": 1,
-      "delivery_person_id": 1,
-      "comment": "Arrived at the location",
-      "created_at": "2024-08-08T12:34:56.789Z"
+      "current_user_id": 1,
+      "comment": "waiting at your doorstep",
+      "id": 5,
+      "order_id": 7
   }
   ```
 
@@ -201,18 +210,20 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Request Body**:
   ```json
   {
-      "name": "Margherita",
-      "description": "Classic cheese and tomato pizza",
-      "price": 10.99
+      "name": "dummy pizza",
+      "description": "This is for testing purpose only",
+      "price": 39,
+      "is_available": true
   }
   ```
 - **Response**:
   ```json
   {
-      "id": 1,
-      "name": "Margherita",
-      "description": "Classic cheese and tomato pizza",
-      "price": 10.99
+      "name": "dummy pizza",
+      "description": "This is for testing purpose only",
+      "price": 39.0,
+      "is_available": true,
+      "id": 11
   }
   ```
 
@@ -221,18 +232,19 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Request Body**:
   ```json
   {
-      "name": "Margherita Plus",
-      "description": "Classic cheese and tomato pizza with extra toppings",
-      "price": 12.99
+      "name": "dummy pizza",
+      "description": "Classic cheese pizza for showcase",
+      "price": 51
   }
   ```
 - **Response**:
   ```json
   {
-      "id": 1,
-      "name": "Margherita Plus",
-      "description": "Classic cheese and tomato pizza with extra toppings",
-      "price": 12.99
+      "name": "dummy pizza",
+      "description": "Classic cheese pizza for showcase",
+      "price": 51.0,
+      "is_available": true,
+      "id": 11
   }
   ```
 
@@ -241,7 +253,7 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Response**:
   ```json
   {
-      "detail": "Pizza deleted successfully."
+      "message": "Pizza deleted successfully."
   }
   ```
 
@@ -250,18 +262,18 @@ This is a FastAPI application for a pizza ordering system. It includes endpoints
 - **Request Body**:
   ```json
   {
-      "status": "preparing"
+      "status": "delivered"
   }
   ```
 - **Response**:
   ```json
   {
-      "id": 1,
+      "id": 10,
+      "total_amount": 50.0,
+      "created_at": "2024-08-08T05:55:09.238627",
       "user_id": 1,
-      "total_amount": 25.97,
-      "status": "preparing",
-      "created_at": "2024-08-08T12:34:56.789Z",
-      "updated_at": "2024-08-08T12:34:56.789Z"
+      "status": "delivered",
+      "updated_at": "2024-08-08T06:24:31.876080"
   }
   ```
 
