@@ -94,6 +94,14 @@ def role_required(required_role: str, current_user: UserResponse):
     return decorator
 
 
+"""
+Function:       role_validator
+Description:    This function takes a list of roles, that are allowed to access the perticular endpoint.
+                It also takes current_user and see if any of the listed role matches for current_user.
+                If not, raises exception.
+"""
+
+
 def role_validator(allowed_roles: List, current_user):
     if current_user.role not in allowed_roles:
         raise HTTPException(
