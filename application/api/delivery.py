@@ -37,7 +37,7 @@ def update_delivery_status(
     db.commit()
     db.refresh(order)
 
-    return { f"Order status updated from {prev_status} to {status_update.status}"}
+    return { f"Order status for order {order_id} updated from {prev_status} to {status_update.status}"}
 
 # @router.post("/deliveries/{order_id}/comments", response_model=ModelDeliveryComment)
 @router.post("/deliveries/{order_id}/comments")
