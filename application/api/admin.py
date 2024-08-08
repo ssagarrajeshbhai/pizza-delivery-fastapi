@@ -12,6 +12,12 @@ from models.order import Order as ModelOrder
 
 router = APIRouter()
 
+"""
+Endpoint: POST /admin/pizzas
+Function: create_pizza
+Description: Creates Object of Pizza model and add them in db
+"""
+
 
 @router.post("/pizzas", response_model=PizzaResponse)
 # @role_required(required_role="admin", current_user=get_current_user)
@@ -46,6 +52,13 @@ def create_pizza(
     return current_pizza
 
 
+"""
+Endpoint:       PUT /admin/pizzas/{pizza_id}
+Function:       update_pizza
+Description:    Verifies that pizza exist, and then update the attributes given by user.                
+"""
+
+
 @router.put("/pizzas/{pizza_id}", response_model=PizzaResponse)
 # @role_required("admin")
 def update_pizza(
@@ -72,6 +85,13 @@ def update_pizza(
     db.refresh(pizza_to_update)
 
     return pizza_to_update
+
+
+"""
+Endpoint:       DELETE /admin/pizzas/{pizza_id}
+Function:       delete_pizza
+Description:    Verifies that pizza exist, and then delete the pizza based on the pizza_id given by user.                
+"""
 
 
 @router.delete("/pizzas/{pizza_id}", response_model=MessageResponse)
@@ -102,6 +122,14 @@ def delete_pizza(
         )
 
     return MessageResponse(message="Pizza deleted successfully.")
+
+
+"""
+Endpoint:       PUT /admin/order/{order_id}/status
+Function:       update_order_status
+Description:    Finds the order, if exist, update the status given by admin user
+                If the current_status and status_to_update are same, it displays current status.         
+"""
 
 
 @router.put("/orders/{order_id}/status")
