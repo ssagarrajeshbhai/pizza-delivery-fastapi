@@ -6,7 +6,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
+# databse URL for sqlite database file
 DATABASE_URL = "sqlite:///./pizza_delivery.database"
+
+# database engine, using database url
 engine = create_engine(
     DATABASE_URL,
     connect_args={
@@ -14,6 +17,7 @@ engine = create_engine(
     }
 )
 
+# generate a session
 sessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
