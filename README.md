@@ -1,6 +1,3 @@
-# pizza-delivery-fastapi
-
-
 # FastAPI Pizza Ordering System
 
 This is a FastAPI application for a pizza ordering system. It includes endpoints for customers, delivery persons, and administrators to manage orders, pizzas, and deliveries effectively.
