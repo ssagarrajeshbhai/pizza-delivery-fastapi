@@ -10,11 +10,14 @@ from models.user import User
 from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
 from schema.auth import TokenData, UserResponse
+from dotenv import load_dotenv
 
-# variable, being used in creation of JWT tokens
-SECRET_KEY = "6df6e58ffaf7b238d6d54684a14f12c7480015d4d8467dcd784c2b7f143924b0"
-ALGORITHM = "HS256"
-EXPIRE_TIME = 1
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+EXPIRE_TIME = os.getenv("EXPIRE_TIME")
 
 """
 Function:       create_access_token

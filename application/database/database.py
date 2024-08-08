@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 
 # databse URL for sqlite database file
-DATABASE_URL = "sqlite:///./pizza_delivery.database"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # database engine, using database url
 engine = create_engine(
