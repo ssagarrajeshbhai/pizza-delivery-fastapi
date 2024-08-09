@@ -20,13 +20,13 @@ Description: Creates Object of Pizza model and add them in db
 
 
 @router.post("/pizzas", response_model=PizzaResponse)
-# @role_required(required_role="admin", current_user=get_current_user)
+# @role_required(allowed_roles=['admin'])
 def create_pizza(
         pizza: PizzaCreate,
         db: Session = Depends(get_db),
         current_user: UserResponse = Depends(get_current_user)
 ):
-    if role_validator(allowed_roles=['customer'], current_user=current_user):
+    if role_validator(allowed_roles=['admin'], current_user=current_user):
 
         current_pizza = Pizza(
             name=pizza.name,

@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
 from schema.auth import TokenData, UserResponse
 from dotenv import load_dotenv
-
+from functools import wraps
 
 load_dotenv()
 
@@ -39,7 +39,6 @@ oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="."
 )
 
-
 """
 Function:       get_current_user
 Description:    It gets the current logged in user from the token, 
@@ -63,7 +62,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        
+
         token_data = TokenData(username=username)
 
     except JWTError:
@@ -84,16 +83,24 @@ Description:    This decorator is being used with the endpoint to check
 """
 
 
-def role_required(required_role: str, current_user: UserResponse):
+def role_required(allowed_roles: List):
     def decorator(func):
-        async def wrapper(*args, **kwargs):
-            if not current_user or current_user.role != required_role:
-                raise HTTPException(
-                    status_code=401,
-                    detail="Operation not permitted"
-                )
-            return await func(*args, **kwargs)
+        @wraps(func)
+        async def wrapper(
+                *args,
+                # token: str = Depends(oauth2_scheme),
+                db: Session = Depends(get_db),
+                **kwargs
+        ):
+            current_user = get_current_user(db)
+
+            if current_user.role not in allowed_roles:
+                raise HTTPException(status_code=403, detail="Not authorized")
+
+            return await func(*args, current_user=current_user, db=db, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -102,6 +109,7 @@ Function:       role_validator
 Description:    This function takes a list of roles, that are allowed to access the perticular endpoint.
                 It also takes current_user and see if any of the listed role matches for current_user.
                 If not, raises exception.
+                Note: Aim for this function is to be doing role check while role_required decorator is out of service
 """
 
 
@@ -111,5 +119,5 @@ def role_validator(allowed_roles: List, current_user):
             status_code=401,
             detail="Operation not permitted"
         )
-    
+
     return True
